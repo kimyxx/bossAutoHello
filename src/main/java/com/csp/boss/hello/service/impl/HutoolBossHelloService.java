@@ -22,7 +22,7 @@ import java.util.Map;
 @Slf4j
 public class HutoolBossHelloService extends AbstractBossHelloService {
 
-    private static final String USER_AGENT = "PostmanRuntime/7.26.8";
+    private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.5359.95 Safari/537.36";
 
     private TypeReference<CommonResponse<EmployeeInfoModel>> employeeInfoTypeReference = new TypeReference<CommonResponse<EmployeeInfoModel>>() {
     };

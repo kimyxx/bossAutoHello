@@ -72,7 +72,7 @@ public class MainFrame extends JFrame {
     });
 
     public MainFrame(BossHelloService bossHelloService) {
-        super("boss 直聘自动向牛人打招呼");
+        super("招聘");
         this.bossHelloService = bossHelloService;
         initComponents();
     }
