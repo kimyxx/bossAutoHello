@@ -8,6 +8,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
@@ -54,6 +55,10 @@ public class MainFrame extends JFrame {
     private JButton startHelloJB;
 
     private JButton stopHelloJB;
+
+    private JTextField ageStart;
+
+    private JTextField ageEnd;
 
     private String lineSplit = System.lineSeparator();
 
@@ -106,6 +111,21 @@ public class MainFrame extends JFrame {
         pagePanel.setSize(ViewUtil.windowWidth, ViewUtil.panelItemHeight);
         pagePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
+
+        pagePanel = new JPanel();
+        pagePanel.setSize(ViewUtil.windowWidth, ViewUtil.panelItemHeight);
+        pagePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+        JLabel ageLabel = new JLabel("年龄: ");
+        ageStart = new JTextField(2);
+        ageStart.setText("17");
+        JLabel ageEndLabel = new JLabel("-");
+        ageEnd = new JTextField(2);
+        ageEnd.setText("30");
+        pagePanel.add(ageLabel);
+        pagePanel.add(ageStart);
+        pagePanel.add(ageEndLabel);
+        pagePanel.add(ageEnd);
+
         JLabel startPageLabel = new JLabel("开始页数(从 1 开始): ");
         startPage = new JTextField(10);
         startPage.setText("1");
@@ -137,8 +157,12 @@ public class MainFrame extends JFrame {
                 if (!StrUtil.isBlank(endPage.getText())) {
                     stopPage = Integer.parseInt(endPage.getText().trim());
                 }
+                String age = null;
+                if (!StrUtil.isBlank(ageStart.getText()) && !StrUtil.isBlank(ageEnd.getText())) {
+                    age = ageStart.getText().trim() + "," + ageEnd.getText().trim();
+                }
 
-                poolExecutor.execute(new HelloRunnable(currentPage, stopPage));
+                poolExecutor.execute(new HelloRunnable(currentPage, stopPage,age));
             }
         });
 
@@ -192,9 +216,12 @@ public class MainFrame extends JFrame {
         private int currentPage;
         private int total = 0;
 
-        public HelloRunnable(int currentPage, int stopPage) {
+        private String age;
+
+        public HelloRunnable(int currentPage, int stopPage,String age) {
             this.stopPage = stopPage;
             this.currentPage = currentPage;
+            this.age = age;
         }
 
         @Override
@@ -209,7 +236,9 @@ public class MainFrame extends JFrame {
                 request.setIntention(getChoiceValue(ChoiceValueEnum.intention));
                 request.setExperience(getChoiceValue(ChoiceValueEnum.experience));
                 request.setJobId(currentJob.getJid());
-
+                if(ObjectUtil.isNotEmpty(age)) {
+                    request.setAge(age);
+                }
                 request.setPage(currentPage);
 
                 CommonResponse<EmployeeInfoModel> employeeInfosResponse = bossHelloService.getEmployeeInfos(request);
@@ -237,7 +266,7 @@ public class MainFrame extends JFrame {
                         postHelloRequest.setGid(item.getEncryptGeekId());
                         postHelloRequest.setLid(item.getGeekCard().getLid());
 
-                        showMessageTextArea.insert("已打招呼【" + total + "】个, 正在向" + "【" + card.getGeekName() + "】" + "打招呼" + lineSplit, 0);
+                        showMessageTextArea.insert("已打招呼【" + total + "】个, 正在向" + "【" + card.getGeekName() + ",年龄：" + card.getAgeDesc() + "】" + "打招呼" + lineSplit, 0);
                         CommonResponse<PostHelloModel> hello = bossHelloService.postHello(postHelloRequest);
                         if (hello.getCode() == 0) {
                             log.info("【" + card.getGeekName() + "】" + "打招呼成功");
