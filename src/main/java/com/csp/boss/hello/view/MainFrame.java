@@ -6,6 +6,7 @@ package com.csp.boss.hello.view;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.lang.Validator;
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -207,7 +208,7 @@ public class MainFrame extends JFrame {
     }
 
     public enum ChoiceValueEnum {
-        salary,intention,degree,experience,
+        salary,intention,degree,experience,gender
     }
 
     public class HelloRunnable implements Runnable {
@@ -235,6 +236,7 @@ public class MainFrame extends JFrame {
                 request.setSalary(getChoiceValue(ChoiceValueEnum.salary));
                 request.setIntention(getChoiceValue(ChoiceValueEnum.intention));
                 request.setExperience(getChoiceValue(ChoiceValueEnum.experience));
+                request.setGender(Integer.parseInt(getChoiceValue(ChoiceValueEnum.gender)));
                 request.setJobId(currentJob.getJid());
                 if(ObjectUtil.isNotEmpty(age)) {
                     request.setAge(age);
@@ -259,6 +261,12 @@ public class MainFrame extends JFrame {
                             return;
                         }
                         EmployeeInfoModel.GeekCard card = item.getGeekCard();
+
+                        if(Validator.isChinese(card.getGeekName()) && card.getGeekName().length() > 3){
+                            showMessageTextArea.insert("【" + card.getGeekName() + "】" + "名字超过4个字，不打招呼！",0);
+                            log.info("【" + card.getGeekName() + "】" + "名字超过4个字，不打招呼！");
+                            continue;
+                        }
                         long expectId = card.getExpectId();
                         String securityId = card.getSecurityId();
                         postHelloRequest.setExpectId(String.valueOf(expectId));
@@ -266,7 +274,9 @@ public class MainFrame extends JFrame {
                         postHelloRequest.setGid(item.getEncryptGeekId());
                         postHelloRequest.setLid(item.getGeekCard().getLid());
 
-                        showMessageTextArea.insert("已打招呼【" + total + "】个, 正在向" + "【" + card.getGeekName() + ",年龄：" + card.getAgeDesc() + "】" + "打招呼" + lineSplit, 0);
+                        String sexName = String.valueOf(card.getGeekGender()).replace("0","女").replace("1","男");
+
+                        showMessageTextArea.insert("已打招呼【" + total + "】个, 正在向" + "【" + card.getGeekName() + ",年龄：" + card.getAgeDesc() + ",性别："+ sexName + "】" + "打招呼" + lineSplit, 0);
                         CommonResponse<PostHelloModel> hello = bossHelloService.postHello(postHelloRequest);
                         if (hello.getCode() == 0) {
                             log.info("【" + card.getGeekName() + "】" + "打招呼成功");
@@ -282,8 +292,8 @@ public class MainFrame extends JFrame {
                             return;
                         }
 
-                        int endInt = Integer.parseInt(System.getProperty("boss.hello.sleepEnd", "20"));
-                        int startInt = Integer.parseInt(System.getProperty("boss.hello.sleepStart", "10"));
+                        int endInt = Integer.parseInt(System.getProperty("boss.hello.sleepEnd", "40"));
+                        int startInt = Integer.parseInt(System.getProperty("boss.hello.sleepStart", "20"));
                         int sleepSecond = RandomUtil.randomInt(startInt, endInt);
                         showMessageTextArea.insert("休息【" + sleepSecond + "】秒" + lineSplit, 0);
                         showMessageTextArea.paintImmediately(showMessageTextArea.getBounds());
@@ -294,8 +304,8 @@ public class MainFrame extends JFrame {
                 }
 
                 currentPage++;
-                int sleepPage = Integer.parseInt(System.getProperty("boss.hello.sleepPage", "20"));
-                showMessageTextArea.insert("休息【" + 20 +"】秒,当前页【" + (currentPage - 1) + "】打招呼结束,准备前往下一页【" + currentPage + "】"  + lineSplit, 0);
+                int sleepPage = Integer.parseInt(System.getProperty("boss.hello.sleepPage", "60"));
+                showMessageTextArea.insert("休息【" + 60 +"】秒,当前页【" + (currentPage - 1) + "】打招呼结束,准备前往下一页【" + currentPage + "】"  + lineSplit, 0);
                 ThreadUtil.sleep(sleepPage, TimeUnit.SECONDS);
                 showMessageTextArea.paintImmediately(showMessageTextArea.getBounds());
             }

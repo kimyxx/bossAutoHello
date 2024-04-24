@@ -187,5 +187,30 @@
         "active": false
       }
     ]
+  },
+  {
+    "id": "gender",
+    "title": "性别",
+    "multi": false,
+    "buttons": [
+      {
+        "name": "不限",
+        "exclusive": true,
+        "value": "0",
+        "active": true
+      },
+      {
+        "name": "男",
+        "exclusive": true,
+        "value": "2201",
+        "active": false
+      },
+      {
+        "name": "女",
+        "exclusive": true,
+        "value": "2202",
+        "active": false
+      }
+    ]
   }
 ]
